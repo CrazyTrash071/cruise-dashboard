@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cruise Fund Dashboard</title>
+    <p style="text-align:center; opacity:0.8;">
+        🛳 Quantum of the Seas • South Pacific Cruise Fund
+    </p>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: Arial;
+            max-width: 850px;
+            margin: auto;
+            padding: 20px;
+            background: linear-gradient(to bottom, #001f3f, #003f7f);
+            color: white;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            padding: 18px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .big {
+            font-size: 34px;
+            font-weight: bold;
+            color: #00e5ff;
+        }
+        
+        .bar {
+            width: 100%;
+            height: 18px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        
+        .fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00e5ff, #00ff99);
+            width: 0%;
+            transition: width 1s ease-in-out;
+        }
+        
+        button {
+            background: #00e5ff;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background: #00ff99;
+        }
+        
+        input {
+            border: none;
+            border-radius: 8px;
+        }
+        </style>
+</head>
+
+<body>
+
+<h1>🛳 Cruise Fund Dashboard</h1>
+
+<div class="card">
+    <div class="big">💰 ${{ total }}</div>
+    <p>Goal: ${{ goal }}</p>
+
+    <div class="bar">
+        <div class="fill" id="fillBar"></div>
+    </div>
+
+    <p>{{ progress|round(1) }}% funded</p>
+    <p>⏳ Days until cruise: <b>{{ days_left }}</b></p>
+</div>
+
+<div class="card">
+    <h3>Add Savings</h3>
+    <form method="POST" action="/add">
+        <input type="number" step="0.01" name="amount" placeholder="Amount ($)" required>
+        <input type="text" name="note" placeholder="Note" required>
+        <button type="submit">Add</button>
+    </form>
+</div>
+
+<div class="card">
+    <h3>Progress Chart</h3>
+    <canvas id="chart"></canvas>
+</div>
+
+<div class="card">
+    <h3>History</h3>
+    {% for e in entries %}
+        <p><b>${{ e[0] }}</b> — {{ e[1] }} <br><small>{{ e[2] }}</small></p>
+    {% endfor %}
+</div>
+
+<script>
+    // progress bar (FIX: no Jinja inside CSS)
+    document.getElementById("fillBar").style.width = "{{ progress }}%";
+
+    // chart
+    new Chart(document.getElementById("chart"), {
+        type: "line",
+        data: {
+            labels: {{ labels|tojson }},
+            datasets: [{
+                label: "Savings Growth",
+                data: {{ values|tojson }},
+                borderColor: "green",
+                fill: false
+            }]
+        }
+    });
+</script>
+
+</body>
+</html>
